@@ -5,6 +5,9 @@ import com.example.ztpai.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Service
 public class RegisterService {
 
@@ -16,6 +19,8 @@ public class RegisterService {
     }
 
     public String register(User user){
+        user.setCreated_at(LocalDateTime.now());
+        user.setEnabled(true);
         userRepository.save(user);
         return "registered";
     }

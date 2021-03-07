@@ -6,27 +6,47 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
-@Table
-@Entity(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "user_email_unique", columnNames = "email")
+        }
+)
+@Entity(name = "User")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(updatable = false,
+            nullable = false
+    )
     private Long id;
-    @NotBlank(message = "Name cannot be empty!")
+    @Column(updatable = false,
+            nullable = false
+    )
     private String firstName;
-    @NotBlank(message = "Last name cannot be empty!")
+    @Column(updatable = false,
+            nullable = false
+    )
     private String lastName;
     @Email
-    @NotEmpty
+    @Column(updatable = false,
+            nullable = false
+    )
     private String email;
     private Boolean enabled;
-    private Date created_at;
+    @Column(updatable = false,
+            nullable = false
+    )
+    private LocalDateTime created_at;
+//    @Column(updatable = false,
+//            nullable = false
+//    )
     private String salt;
 }
