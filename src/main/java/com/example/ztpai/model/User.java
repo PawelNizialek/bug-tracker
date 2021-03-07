@@ -49,4 +49,8 @@ public class User {
 //            nullable = false
 //    )
     private String salt;
+    @Column(
+            nullable = false
+    )
+    private String password;
 }
