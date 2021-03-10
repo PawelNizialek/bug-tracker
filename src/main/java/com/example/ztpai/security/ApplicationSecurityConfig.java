@@ -1,5 +1,6 @@
 package com.example.ztpai.security;
 
+import com.example.ztpai.jwt.JwtUsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -31,13 +33,14 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/api/v1/auth/register").permitAll()
-                .antMatchers("/api/v1/users").hasAuthority("ADMIN")
-                .anyRequest()
-                .authenticated()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .formLogin()
-                .defaultSuccessUrl("/api/v1/dashboard",true);
+                .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager()))
+                .authorizeRequests()
+//                .antMatchers("/api/v1/auth/register").permitAll()
+                .antMatchers("/").permitAll()
+//                .antMatchers("/api/v1/users").hasAuthority("ADMIN")
+                .anyRequest()
+                .authenticated();
     }
 }
