@@ -18,17 +18,13 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
 
     @Autowired
-    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, @Qualifier("userDetailsService") UserDetailsService userDetailsService) {
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, @Qualifier("myUserDetailsService") UserDetailsService userDetailsService) {
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.inMemoryAuthentication()
-//                .withUser("admin")
-//                .password(new BCryptPasswordEncoder().encode("123"))
-//                .roles("ADMIN");
         auth.userDetailsService(userDetailsService);
     }
 
