@@ -1,6 +1,5 @@
 package com.example.ztpai.controller;
 
-import com.example.ztpai.model.User;
 import com.example.ztpai.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,8 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @GetMapping
-    public String login(@RequestBody User user){
-        return loginService.login(user);
+    @PostMapping
+    public String login(){
+        return loginService.login();
     }
 }

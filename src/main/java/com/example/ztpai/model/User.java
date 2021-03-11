@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Table(
         name = "users",
@@ -45,12 +43,10 @@ public class User {
             nullable = false
     )
     private LocalDateTime created_at;
-//    @Column(updatable = false,
-//            nullable = false
-//    )
     private String salt;
     @Column(
             nullable = false
     )
     private String password;
+    private String role;
 }

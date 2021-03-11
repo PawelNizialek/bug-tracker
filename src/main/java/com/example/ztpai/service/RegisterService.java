@@ -24,6 +24,7 @@ public class RegisterService {
         user.setPassword(passwordConfig.passwordEncoder().encode(user.getPassword()));
         user.setCreated_at(LocalDateTime.now());
         user.setEnabled(true);
+        user.setRole("USER");
         userRepository.save(user);
     }
 }
