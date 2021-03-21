@@ -52,4 +52,6 @@ public class User {
     @NotBlank
     private String password;
     private String role;
+    @OneToOne(fetch = FetchType.LAZY)
+    private VerificationToken verificationToken;
 }
