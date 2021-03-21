@@ -1,5 +1,6 @@
 package com.example.ztpai.controller;
 
+import com.example.ztpai.dto.RegistrationRequest;
 import com.example.ztpai.model.User;
 import com.example.ztpai.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,7 @@ public class RegisterController {
     }
 
     @PostMapping
-    public ResponseEntity register(@RequestBody User user){
-        registerService.register(user);
-        return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity register(@RequestBody RegistrationRequest request){
+        return registerService.register(request);
     }
 }
