@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -27,14 +28,15 @@ public class RegisterService {
     private final MailContent mailContent;
     private final MailService mailService;
 
+    @Transactional
     public ResponseEntity register(RegistrationRequest request){
         User user = new User();
         user.setPassword(passwordConfig.passwordEncoder().encode(request.getPassword()));
         user.setCreated_at(LocalDateTime.now());
-        user.setEnabled(false);
+        user.setEnabled(true);
         user.setRole("USER");
-        user.setFirstName(request.getFirstname());
-        user.setLastName(request.getLastname());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setToken(new Token().generate());

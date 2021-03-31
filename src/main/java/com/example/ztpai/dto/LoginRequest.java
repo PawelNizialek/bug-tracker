@@ -3,9 +3,7 @@ package com.example.ztpai.dto;
 import lombok.Data;
 
 @Data
-public class RegistrationRequest {
+public class LoginRequest {
     private String email;
-    private String firstName;
-    private String lastName;
     private String password;
 }

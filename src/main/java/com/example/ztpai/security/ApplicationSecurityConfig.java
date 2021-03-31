@@ -1,30 +1,40 @@
 package com.example.ztpai.security;
 
-import com.example.ztpai.jwt.JwtTokenVerifier;
-import com.example.ztpai.jwt.JWTProvider;
+import com.example.ztpai.jwt.JwtFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordConfig passwordConfig;
     private final UserDetailsService userDetailsService;
 
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Override public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(HttpMethod.POST, "/api/v1/auth/**");
     }
 
     @Override
@@ -32,15 +42,19 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/v1/auth/**").permitAll()
-                .antMatchers("/api/v1/myprojects/showallprojects").hasAuthority("ADMIN")
+                .antMatchers("/api/v1/myprojects/showallprojects").hasAuthority("USER")
                 .antMatchers("/login").permitAll()
                 .antMatchers("/api/v1/users").hasAuthority("ADMIN")
                 .anyRequest()
-                .authenticated();
-//                .and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//                .addFilter(new JWTProvider(authenticationManager()))
-//                .addFilterAfter(new JwtTokenVerifier(), JWTProvider.class);
+                .authenticated()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(new JwtFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Autowired
+    protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(passwordConfig.passwordEncoder());
     }
 }
