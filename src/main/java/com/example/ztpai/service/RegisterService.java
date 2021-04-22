@@ -34,7 +34,6 @@ public class RegisterService {
         user.setPassword(passwordConfig.passwordEncoder().encode(request.getPassword()));
         user.setCreated_at(LocalDateTime.now());
         user.setEnabled(true);
-        user.setRole("USER");
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
@@ -49,17 +48,5 @@ public class RegisterService {
         mailService.sendMail(mailContent);
         return new ResponseEntity(HttpStatus.CREATED);
     }
-    public ResponseEntity verifyToken(String token){
-        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
-        if(verificationToken.isPresent()){
-            Optional<User> user = userRepository
-                    .findUserByVerificationToken(verificationTokenRepository.findByToken(token));
-            if(user.isPresent()){
-                user.get().setEnabled(true);
-                userRepository.save(user.get());
-                return new ResponseEntity(HttpStatus.OK);
-            }
-        }
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
+
 }

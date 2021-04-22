@@ -9,10 +9,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -21,16 +23,19 @@ public class MyUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findUserByEmail(email);
-        if(user.isPresent()){
+    @Transactional
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + email));
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
+                .collect(Collectors.toList());
+        if(user.getEnabled())
             return new org.springframework.security.core.userdetails.User(
-                    user.get().getEmail(), user.get().getPassword(),user.get().getEnabled(),
+                    user.getEmail(), user.getPassword(),user.getEnabled(),
                     true, true, true,
-                    getAuthorities(user.get().getRole()));
-        }
-        throw new UsernameNotFoundException("not found: " + email);
+                    authorities);
+        else throw new UsernameNotFoundException("Account is blocked");
     }
     private Collection<? extends GrantedAuthority> getAuthorities(String authority){
         return Collections.singletonList(new SimpleGrantedAuthority(authority));
