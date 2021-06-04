@@ -75,7 +75,7 @@ public class AuthService {
             roleRepository.saveAll(roles);
         }
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            return new AuthenticationResponse();// TO DO
+            return new AuthenticationResponse();
         }
 
         VerificationToken verificationToken = new VerificationToken();

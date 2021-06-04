@@ -2,6 +2,7 @@ package com.example.ztpai.service;
 
 import com.example.ztpai.dto.UserRequest;
 import com.example.ztpai.dto.UserResponse;
+import com.example.ztpai.exception.ZtpaiAppException;
 import com.example.ztpai.model.Role;
 import com.example.ztpai.model.User;
 import com.example.ztpai.repository.RoleRepository;
@@ -65,7 +66,9 @@ public class UserService {
     }
 
     public void editUser(UserRequest userRequest){
-        User user = userRepository.findById(userRequest.getUserId()).orElseThrow();
+        User user = userRepository.findById(userRequest.getUserId()).orElseThrow(
+                () -> new ZtpaiAppException("user not found")
+        );
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
         user.setEmail(userRequest.getEmail());
@@ -75,7 +78,9 @@ public class UserService {
     }
 
     public UserResponse enableUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ZtpaiAppException("user not found")
+        );
         user.setEnabled(true);
         userRepository.save(user);
         return new UserResponse(user.getUserId(), user.getFirstName(), user.getLastName(),
@@ -84,7 +89,9 @@ public class UserService {
     }
 
     public UserResponse disableUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ZtpaiAppException("user not found")
+        );
         user.setEnabled(false);
         userRepository.save(user);
         return new UserResponse(user.getUserId(), user.getFirstName(), user.getLastName(),
@@ -93,8 +100,12 @@ public class UserService {
     }
 
     public void requestAdmin(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        Role role = roleRepository.findByRoleName(UserRole.ADMIN).orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ZtpaiAppException("user not found")
+        );
+        Role role = roleRepository.findByRoleName(UserRole.ADMIN).orElseThrow(
+                () -> new ZtpaiAppException("role not found")
+        );
         Set<Role> roles = new HashSet<>();
         roles.add(role);
         user.setRoles(roles);

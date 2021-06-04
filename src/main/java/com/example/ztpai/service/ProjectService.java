@@ -2,6 +2,7 @@ package com.example.ztpai.service;
 
 import com.example.ztpai.dto.ProjectRequest;
 import com.example.ztpai.dto.ProjectResponse;
+import com.example.ztpai.exception.ZtpaiAppException;
 import com.example.ztpai.model.Project;
 import com.example.ztpai.project.Status;
 import com.example.ztpai.repository.ProjectRepository;
@@ -49,14 +50,18 @@ public class ProjectService {
         return null;
     }
     public void deleteProject(Long projectId){
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        Project project = projectRepository.findById(projectId).orElseThrow(
+                () -> new ZtpaiAppException("project not found")
+        );
         for (int i = 0; i < project.getTickets().size(); i++) {
             ticketRepository.delete(project.getTickets().get(i));
         }
         projectRepository.delete(project);
     }
     public ProjectResponse updateProject(ProjectRequest projectRequest){
-        Project storedProject = projectRepository.findById(projectRequest.getProjectId()).orElseThrow();
+        Project storedProject = projectRepository.findById(projectRequest.getProjectId()).orElseThrow(
+                () -> new ZtpaiAppException("project not found")
+        );
         storedProject.setName(projectRequest.getName());
         storedProject.setDescription(projectRequest.getDescription());
         if(storedProject.getStatus() == Status.PROGRESS)
@@ -66,7 +71,9 @@ public class ProjectService {
                 storedProject.getStartDate(), storedProject.getEndDate());
     }
     public void closeProject(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        Project project = projectRepository.findById(projectId).orElseThrow(
+                () -> new ZtpaiAppException("project not found")
+        );
         project.setStatus(Status.DONE);
         project.setEndDate(LocalDateTime.now());
         for (int i = 0; i < project.getTickets().size(); i++) {

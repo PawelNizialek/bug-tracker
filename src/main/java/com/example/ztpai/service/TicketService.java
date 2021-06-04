@@ -3,6 +3,7 @@ package com.example.ztpai.service;
 import com.example.ztpai.dto.TicketRequest;
 import com.example.ztpai.dto.TicketResponse;
 import com.example.ztpai.dto.UserRequest;
+import com.example.ztpai.exception.ZtpaiAppException;
 import com.example.ztpai.model.Project;
 import com.example.ztpai.model.Ticket;
 import com.example.ztpai.model.User;
@@ -61,7 +62,9 @@ public class TicketService {
     }
 
     public void createTicket(TicketRequest ticketRequest, Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        Project project = projectRepository.findById(projectId).orElseThrow(
+                () -> new ZtpaiAppException("project not found")
+        );
         Ticket ticket = Ticket.builder()
                 .created_at(LocalDateTime.now())
                 .description(ticketRequest.getDesc())
@@ -75,7 +78,9 @@ public class TicketService {
     }
 
     public void editTicket(TicketRequest ticketRequest){
-        Ticket ticket = ticketRepository.findById(ticketRequest.getTicketId()).orElseThrow();
+        Ticket ticket = ticketRepository.findById(ticketRequest.getTicketId()).orElseThrow(
+                () -> new ZtpaiAppException("ticket not found")
+        );
         ticket.setTitle(ticketRequest.getTitle());
         ticket.setDescription(ticketRequest.getDesc());
         ticketRepository.save(ticket);
@@ -91,8 +96,12 @@ public class TicketService {
     }
 
     public void assignTicket(UserRequest userRequest, Long ticketId) {
-        User user = userRepository.findById(userRequest.getUserId()).orElseThrow();
-        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        User user = userRepository.findById(userRequest.getUserId()).orElseThrow(
+                () -> new ZtpaiAppException("user not found")
+        );
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(
+                () -> new ZtpaiAppException("ticket not found")
+        );
         List<User> users = ticket.getUserSet();
         users.add(user);
         ticket.setUserSet(users);
@@ -100,7 +109,9 @@ public class TicketService {
     }
 
     public void closeProject(Long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(
+                () -> new ZtpaiAppException("ticket not found")
+        );
         ticket.setStatus(TicketStatus.CLOSE);
         ticketRepository.save(ticket);
     }
